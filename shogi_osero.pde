@@ -17,7 +17,6 @@ void setup() {
 }
 
 void draw() {
-  println(mode);
   switch(mode) {
   case 0:
   case 2:
@@ -32,16 +31,17 @@ void draw() {
 }
 
 void mousePressed() {
+  println(convert2board(mouseX, mouseY));
   switch(mode) {
   case 0:
   case 2:
-    board.setAbleToSet(mode/2, convert2boardX(mouseX), convert2boardY(mouseY));
+    board.setAbleToSet(mode/2, convert2board(mouseX, mouseY));
     if (board.able.size() > 0) mode++;
     break;
   case 1:
   case 3:
     if (board.able.hasValue(convert2board(mouseX, mouseY))) {
-      board.movePiece(mode/2, convert2boardX(mouseX), convert2boardY(mouseY));
+      board.movePiece(mode/2, convert2board(mouseX, mouseY));
       println("move");
       board.selectClear();
       mode = ++mode % 4;

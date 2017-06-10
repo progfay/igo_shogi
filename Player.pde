@@ -14,8 +14,8 @@ class ShogiPlayer extends Player {
   }
 }
 
-class OseroPlayer extends Player {
-  OseroPlayer(int _id) {
+class IgoPlayer extends Player {
+  IgoPlayer(int _id) {
     super(_id);
   }
 }

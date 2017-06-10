@@ -2,8 +2,7 @@ class Board {
   Piece [][] board = new Piece [9][9];
   Player [] player = new Player [2];
   IntList able;
-  int selectX = -1;
-  int selectY = -1;
+  int select = -1;
 
   Board(Player player0, Player player1) {
     for (int i = 0; i < 9; i++) {
@@ -32,28 +31,32 @@ class Board {
         this.board[8]         [8-8*_owner] = new Kyou  (_owner);
       } else {
         for (int i = 0; i < 9; i++) {
-          this.board[i][6-4*_owner] = new Osero(_owner);
-          this.board[i][8-8*_owner] = new Osero(_owner);
+          this.board[i][6-4*_owner] = new Igo(_owner);
+          this.board[i][8-8*_owner] = new Igo(_owner);
         }
-        this.board[1+6*_owner][7-6*_owner] = new Osero(_owner);
-        this.board[7-6*_owner][7-6*_owner] = new Osero(_owner);
+        this.board[1+6*_owner][7-6*_owner] = new Igo(_owner);
+        this.board[7-6*_owner][7-6*_owner] = new Igo(_owner);
         this.board[4]         [8-8*_owner] = new King (_owner);
       }
     }
     able = new IntList();
   }
 
-  Piece get(int _x, int _y) {
-    return this.board[_x][_y];
+  Piece get(int _xy) {
+    if (  0 <= _xy && _xy <=  80) return this.board[_xy/9][_xy%9];
+    if (100 <= _xy && _xy <= 120) return this.player[0].possession.get(_xy-100);
+    if (130 <= _xy && _xy <= 150) return this.player[1].possession.get(_xy-130);
+    return null;
   }
 
-  void set(int _x, int _y, Piece _piece) {
-    this.board[_x][_y] = copy(_piece);
+  void set(int _xy, Piece _piece, int _owner) {
+    this.board[_xy/9][_xy%9] = copy(_piece, _owner);
   }
-
-  // @Duplicate
-  void set(int _x, int _y, Piece _piece, int _owner) {
-    this.board[_x][_y] = copy(_piece, _owner);
+  
+  void remove(int _xy) {
+    if (  0 <= _xy && _xy <=  80) this.board[_xy/9][_xy%9] = new Empty();
+    if (100 <= _xy && _xy <= 120) this.player[0].possession.remove(_xy-100);
+    if (130 <= _xy && _xy <= 150) this.player[1].possession.remove(_xy-130);
   }
 
   void draw() {
@@ -71,6 +74,12 @@ class Board {
         this.board[i][j].draw((i+5.5)*CELL_LEN, (j+1.5)*CELL_LEN, this.board[i][j].owner);
       }
     }
+    for (int i = 0; i < player[0].possession.size(); i++) {
+      player[0].possession.get(i).draw(CELL_LEN*17.75-CELL_LEN*(i%3), CELL_LEN*10-CELL_LEN*(i/3), 0);
+    }
+    for (int i = 0; i < player[1].possession.size(); i++) {
+      player[1].possession.get(i).draw(CELL_LEN*1.25+CELL_LEN*(i%3), CELL_LEN+CELL_LEN*(i/3), 1);
+    }
   }
 
   void drawAble() {
@@ -81,16 +90,26 @@ class Board {
     }
   }
 
-  void setAbleToSet(int _owner, int _x, int _y) {
-    if (this.player[_owner] instanceof OseroPlayer) {
-      this.able = this.emptyList();
+  void setAbleToSet(int _owner, int _xy) {
+    //if (this.player[_owner] instanceof IgoPlayer) {
+    //  this.able = this.emptyList();
+    //  return;
+    //}
+    if(_xy == -1) {
+      this.selectClear();
       return;
     }
-    Piece move = this.get(_x, _y);
+    Piece move = this.get(_xy);
+    this.select = _xy;
+    if(_xy >= 100) {
+      if(move.code == 10) this.able = this.ableFuList();
+      else                this.able = this.emptyList();
+      return;
+    }
     if (move.owner != _owner) return;
-    this.selectX = _x;
-    this.selectY = _y;
     int _code = move.code;
+    int _x = _xy / 9;
+    int _y = _xy % 9;
     switch(_code) {
     case 1:  // King
       this.able.append(isAbleToSet(_owner, _x, _y, -1, -1));
@@ -187,7 +206,7 @@ class Board {
     int x = _x + (_owner == 0 ? _dx : -_dx);
     int y = _y + (_owner == 0 ? _dy : -_dy);
     if (x < 0 || 8 < x || y < 0 || 8 < y) return -1;
-    Piece installed = this.get(x, y);
+    Piece installed = this.get(x*9+y);
     if (installed instanceof Shogi && installed.owner == _owner) return -1;
     return x*9+y;
   }
@@ -196,7 +215,7 @@ class Board {
     int x = _x + (_owner == 0 ? _dx : -_dx);
     int y = _y + (_owner == 0 ? _dy : -_dy);
     if (x < 0 || 8 < x || y < 0 || 8 < y) return false;
-    Piece installed = this.get(x, y);
+    Piece installed = this.get(x*9+y);
     if (installed instanceof Empty) return true;
     return false;
   }
@@ -205,23 +224,37 @@ class Board {
     IntList emptyList = new IntList();
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        if (this.get(i, j) instanceof Empty) emptyList.append(i*9+j);
+        if (this.get(i*9+j) instanceof Empty) emptyList.append(i*9+j);
       }
     }
     return emptyList;
   }
-  
-  void movePiece(int _owner, int afterX, int afterY) {
-    Piece obtain = copy(this.board[afterX][afterY], _owner);
-    this.set(afterX, afterY, copy(this.board[this.selectX][this.selectY], _owner));
-    this.set(this.selectX, this.selectY, new Empty());
-    if(obtain instanceof Empty) return;
+
+  IntList ableFuList() {
+    IntList FuList = new IntList();
+    Fu:
+    for (int _x = 0; _x < 9; _x++) {
+      for (int _y = 0; _y < 9; _y++) {
+        if (this.get(_x*9+_y).code == 10) continue Fu;
+      }
+      for (int _y = 0; _y < 9; _y++) {
+        if (this.get(_x*9+_y) instanceof Empty) FuList.append(_x*9+_y);
+      }
+    }
+    return FuList;
+  }
+
+  void movePiece(int _owner, int after) {
+    Piece obtain = copy(this.board[after/9][after%9], _owner);
+    this.set(after, copy(this.get(select), _owner), _owner);
+    this.remove(this.select);
+    if (obtain instanceof Empty) return;
     player[_owner].possession.add(obtain);
   }
-  
+
+  //@Duplicate
   void selectClear() {
-    this.selectX = -1;
-    this.selectY = -1;
+    this.select = -1;
     this.able = new IntList();
   }
 }

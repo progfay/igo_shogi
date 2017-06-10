@@ -3,7 +3,7 @@ abstract class Piece {
   String name = "";
 
   // -1 : Empty
-  //  0 : Osero
+  //  0 : Igo
   //  1 : King
   //  2 : Hisya
   //  3 : Dragon
@@ -49,8 +49,8 @@ class Shogi extends Piece {
   }
 }
 
-class Osero extends Piece {
-  Osero(int _o) {
+class Igo extends Piece {
+  Igo(int _o) {
     super(_o);
     this.code = 0;
   }
@@ -69,21 +69,10 @@ class Empty extends Piece {
   }
 }
 
-Piece copy(Piece origin) {
-  Piece copy;
-  if      (origin instanceof Shogi) copy = new Shogi(origin.owner);
-  else if (origin instanceof Osero) copy = new Osero(origin.owner);
-  else                              copy = new Empty();
-  copy.name = new String(origin.name);
-  copy.code = origin.code;
-  return copy;
-}
-
-// @Duplicate
 Piece copy(Piece origin, int _owner) {
   Piece copy;
   if      (origin instanceof Shogi) copy = new Shogi(_owner);
-  else if (origin instanceof Osero) copy = new Osero(_owner);
+  else if (origin instanceof Igo) copy = new Igo(_owner);
   else                             copy = new Empty();
   copy.name = new String(origin.name);
   copy.code = origin.code;
