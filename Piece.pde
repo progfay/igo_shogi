@@ -20,6 +20,10 @@ abstract class Piece {
     this.owner   = _o;
   }
   abstract void draw(float centerX, float centerY, int _owner);
+  
+  String toString() {
+    return this.name;
+  }
 }
 
 class Shogi extends Piece {
