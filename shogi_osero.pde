@@ -2,6 +2,7 @@ final int CELL_LEN = 60;
 Player player0, player1;
 Board board;
 int mode = 0;
+IntList able = new IntList();
 
 void settings() {
   size(CELL_LEN*19, CELL_LEN*11);
@@ -20,7 +21,7 @@ void draw() {
   switch(mode) {
   case 0:
     board.draw();
-    board.drawAble(board.emptyList());
+    board.drawAble(able);
     //mode++;
     break;
   case 1:
@@ -33,4 +34,6 @@ void draw() {
 }
 
 void mousePressed() {
+  able = board.ableToSet(0, convert2boardX(mouseX), convert2boardY(mouseY));
+  println(able);
 }

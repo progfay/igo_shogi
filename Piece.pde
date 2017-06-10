@@ -1,6 +1,21 @@
 abstract class Piece {
   int owner;
   String name = "";
+
+  // -1 : Empty
+  //  0 : Osero
+  //  1 : King
+  //  2 : Hisya
+  //  3 : Dragon
+  //  4 : Kaku
+  //  5 : Hourse
+  //  6 : Gold
+  //  7 : Silver
+  //  8 : Kei
+  //  9 : Kyou
+  // 10 : Fu
+  int code;
+
   Piece(int _o) {
     this.owner   = _o;
   }
@@ -33,6 +48,7 @@ class Shogi extends Piece {
 class Osero extends Piece {
   Osero(int _o) {
     super(_o);
+    this.code = 0;
   }
   void draw(float centerX, float centerY, int _owner) {
     fill(255*_owner);
@@ -41,8 +57,9 @@ class Osero extends Piece {
 }
 
 class Empty extends Piece {
-  Empty(int _o) {
+  Empty() {
     super(-1);
+    this.code = -1;
   }
   void draw(float centerX, float centerY, int _owner) {
   }
@@ -50,18 +67,21 @@ class Empty extends Piece {
 
 Piece copy(Piece origin) {
   Piece copy;
-  if     (origin instanceof Shogi) copy = new Shogi(origin.owner);
-  else if(origin instanceof Osero) copy = new Osero(origin.owner);
-  else                             copy = new Empty(origin.owner);
+  if      (origin instanceof Shogi) copy = new Shogi(origin.owner);
+  else if (origin instanceof Osero) copy = new Osero(origin.owner);
+  else                              copy = new Empty();
   copy.name = new String(origin.name);
+  copy.code = origin.code;
   return copy;
 }
 
+// @Duplicate
 Piece copy(Piece origin, int _owner) {
   Piece copy;
-  if     (origin instanceof Shogi) copy = new Shogi(_owner);
-  else if(origin instanceof Osero) copy = new Osero(_owner);
-  else                             copy = new Empty(_owner);
+  if      (origin instanceof Shogi) copy = new Shogi(_owner);
+  else if (origin instanceof Osero) copy = new Osero(_owner);
+  else                             copy = new Empty();
   copy.name = new String(origin.name);
+  copy.code = origin.code;
   return copy;
 }
