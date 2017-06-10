@@ -1,7 +1,7 @@
 class King extends Shogi {
   King(int _o) {
     super(_o);
-    this.name = "玉\n将";
+    this.name = (_o == 0 ? "玉\n将" : "王\n将");
   }
 }
 

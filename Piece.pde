@@ -35,14 +35,14 @@ class Osero extends Piece {
     super(_o);
   }
   void draw(float centerX, float centerY, int _owner) {
-    fill(255);
+    fill(255*_owner);
     ellipse(centerX, centerY, CELL_LEN*0.8, CELL_LEN*0.8);
   }
 }
 
 class Empty extends Piece {
   Empty(int _o) {
-    super(_o);
+    super(-1);
   }
   void draw(float centerX, float centerY, int _owner) {
   }
