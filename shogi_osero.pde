@@ -27,11 +27,12 @@ void draw() {
     board.draw();
     board.drawAble();
     break;
+  default:
+    break;
   }
 }
 
 void mousePressed() {
-  println(convert2board(mouseX, mouseY));
   switch(mode) {
   case 0:
   case 2:
@@ -40,15 +41,22 @@ void mousePressed() {
     break;
   case 1:
   case 3:
-    if (board.able.hasValue(convert2board(mouseX, mouseY))) {
-      board.movePiece(mode/2, convert2board(mouseX, mouseY));
-      println("move");
+    int setPos = convert2board(mouseX, mouseY);
+    if (board.able.hasValue(setPos)) {
+      board.movePiece(mode/2, setPos);
       board.selectClear();
+      if (board.canAdvanced(mode/2, setPos)) {
+        int selection = javax.swing.JOptionPane.showConfirmDialog(new javax.swing.JPanel(), "", "", 0);
+        if (selection == 0) board.Advanced(setPos);
+      }
       mode = ++mode % 4;
     } else {
       board.selectClear();
       mode--;
     }
+
+    break;
+  default:
     break;
   }
 }

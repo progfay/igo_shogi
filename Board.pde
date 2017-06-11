@@ -52,7 +52,7 @@ class Board {
   void set(int _xy, Piece _piece, int _owner) {
     this.board[_xy/9][_xy%9] = copy(_piece, _owner);
   }
-  
+
   void remove(int _xy) {
     if (  0 <= _xy && _xy <=  80) this.board[_xy/9][_xy%9] = new Empty();
     if (100 <= _xy && _xy <= 120) this.player[0].possession.remove(_xy-100);
@@ -95,14 +95,14 @@ class Board {
     //  this.able = this.emptyList();
     //  return;
     //}
-    if(_xy == -1) {
+    if (_xy == -1) {
       this.selectClear();
       return;
     }
     Piece move = this.get(_xy);
     this.select = _xy;
-    if(_xy >= 100) {
-      if(move.code == 10) this.able = this.ableFuList();
+    if (_xy >= 100) {
+      if (move.code == 10) this.able = this.ableFuList();
       else                this.able = this.emptyList();
       return;
     }
@@ -232,7 +232,7 @@ class Board {
 
   IntList ableFuList() {
     IntList FuList = new IntList();
-    Fu:
+  Fu:
     for (int _x = 0; _x < 9; _x++) {
       for (int _y = 0; _y < 9; _y++) {
         if (this.get(_x*9+_y).code == 10) continue Fu;
@@ -256,5 +256,21 @@ class Board {
   void selectClear() {
     this.select = -1;
     this.able = new IntList();
+  }
+
+  boolean canAdvanced(int _owner, int after) {
+    int code = this.get(after).code;
+    if (code != 2 && code != 4 && code != 7 && code != 8 && code != 9 && code != 10) return false;
+    return (_owner == 1 ? (after%9 > 5) : (after%9 < 3));
+  }
+
+  void Advanced(int after) {
+    Piece seed = this.get(after);
+    if      (seed.name.equals("飛\n車")) this.set(after, new Dragon(seed.owner), seed.owner);
+    else if (seed.name.equals("角\n行")) this.set(after, new Hourse(seed.owner), seed.owner);
+    else if (seed.name.equals("銀\n将")) this.set(after, new Silver(seed.owner), seed.owner);
+    else if (seed.name.equals("桂\n馬")) this.set(after, new Kei   (seed.owner), seed.owner);
+    else if (seed.name.equals("香\n車")) this.set(after, new Kyou  (seed.owner), seed.owner);
+    else if (seed.name.equals("歩\n兵")) this.set(after, new To    (seed.owner), seed.owner);
   }
 }
